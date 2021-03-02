@@ -19,11 +19,16 @@ if (Test-Path $filePath){
     ls | % {$hash = Get-FileHash $_.Name; if ($hashes -contains $hash.Hash) { Write-Host $hash.Path}}
     }
 }
-#CVE-2021-26855
-Import-Csv -Path (Get-ChildItem -Recurse -Path "$env:PROGRAMFILES\Microsoft\Exchange Server\V15\Logging\HttpProxy" -Filter '*.log').FullName | Where-Object {  $_.AuthenticatedUser -eq '' -and $_.AnchorMailbox -like 'ServerInfo~*/*' } | select DateTime, AnchorMailbox
+
 #CVE-2021-26858
+Write-Host "Checking CVE-2021-26858 IOC"
 findstr /snip /c:"Download failed and temporary file" "%PROGRAMFILES%\Microsoft\Exchange Server\V15\Logging\OABGeneratorLog\*.log"
 #CVE-2021-26857
+Write-Host "Checking CVE-2021-26857 IOC"
 Get-EventLog -LogName Application -Source “MSExchange Unified Messaging” -EntryType Error | Where-Object { $_.Message -like “*System.InvalidCastException*” }
 #CVE-2021-27065 
-Select-String -Path "$env:PROGRAMFILES\Microsoft\Exchange Server\V15\Logging\ECP\Server\*.log" -Pattern ‘Set-.+VirtualDirectory’
+Write-Host "Checking CVE-2021-27065  IOC"
+Select-String -Path "$env:PROGRAMFILES\Microsoft\Exchange Server\V15\Logging\ECP\Server\*.log" -Pattern 'Set-.+VirtualDirectory'
+#CVE-2021-26855
+Write-Host "Checking CVE-2021-26855 IOC"
+Import-Csv -Path (Get-ChildItem -Recurse -Path "$env:PROGRAMFILES\Microsoft\Exchange Server\V15\Logging\HttpProxy" -Filter '*.log').FullName | Where-Object {  $_.AuthenticatedUser -eq '' -and $_.AnchorMailbox -like 'ServerInfo~*/*' } | select DateTime, AnchorMailbox
