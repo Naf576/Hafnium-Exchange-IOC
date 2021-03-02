@@ -12,7 +12,7 @@ $filePaths = @(  "C:\inetpub\wwwroot\aspnet_client\",
                 "c:\Program Files(x86)\Microsoft\Exchange Server\V15\FrontEnd\HttpProxy\owa\auth\",
                 "C:\Exchange\FrontEnd\HttpProxy\owa\auth\")
 
-
+Write-Host "Checking for Webshells"
 foreach($filePath in $filePaths){
 if (Test-Path $filePath){
     cd $filePath;
