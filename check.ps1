@@ -17,6 +17,7 @@ foreach($filePath in $filePaths){
 if (Test-Path $filePath){
     cd $filePath;
     ls | % {$hash = Get-FileHash $_.Name; if ($hashes -contains $hash.Hash) { Write-Host $hash.Path}}
+    ls | % {if ($_.Name.Contains(".aspx")) { $fileContent = Get-Content $_.Name; if ($fileContent.Contains("Jscript") -or $fileContent.Contains("<%System.IO.File.WriteAllText(Request.Item[`"p`"],Request.Item[`"c`"]);%>")) {Write-Host $_.Name} } }
     }
 }
 
@@ -25,7 +26,7 @@ Write-Host "Checking CVE-2021-26858 IOC"
 findstr /snip /c:"Download failed and temporary file" "%PROGRAMFILES%\Microsoft\Exchange Server\V15\Logging\OABGeneratorLog\*.log"
 #CVE-2021-26857
 Write-Host "Checking CVE-2021-26857 IOC"
-Get-EventLog -LogName Application -Source “MSExchange Unified Messaging” -EntryType Error | Where-Object { $_.Message -like “*System.InvalidCastException*” }
+Get-EventLog -LogName Application -Source "MSExchange Unified Messaging" -EntryType Error | Where-Object { $_.Message -like "*System.InvalidCastException*" }
 #CVE-2021-27065 
 Write-Host "Checking CVE-2021-27065  IOC"
 Select-String -Path "$env:PROGRAMFILES\Microsoft\Exchange Server\V15\Logging\ECP\Server\*.log" -Pattern 'Set-.+VirtualDirectory'
