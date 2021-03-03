@@ -14,10 +14,10 @@ $filePaths = @(  "C:\inetpub\wwwroot\aspnet_client\",
 
 Write-Host "Checking for Webshells"
 foreach($filePath in $filePaths){
-if (Test-Path $filePath){
-    cd $filePath;
-    ls | % {$hash = Get-FileHash $_.Name; if ($hashes -contains $hash.Hash) { Write-Host "Found WEBSHELL IOC at $($hash.Path)"}}
-    ls | % {if ($_.Name.Contains(".aspx")) { $fileContent = Get-Content $_.Name; if ($fileContent.Contains("Jscript") -or $fileContent.Contains("<%System.IO.File.WriteAllText(Request.Item[`"p`"],Request.Item[`"c`"]);%>")) {Write-Host "Found WEBSHELL IOC at $($_.Name)"} } }
+    if (Test-Path $filePath){
+        cd $filePath;
+        ls | % {$hash = Get-FileHash $_.Name; if ($hashes -contains $hash.Hash) { Write-Host $hash.Path}}
+        ls | % {if ($_.Name.Contains(".aspx")) { $fileContent = Get-Content $_.Name; if ($fileContent.Contains("Jscript") -or $fileContent.Contains("<%System.IO.File.WriteAllText(Request.Item[`"p`"],Request.Item[`"c`"]);%>")) {Write-Host $_.Name} } }
     }
 }
 
@@ -32,4 +32,4 @@ Write-Host "Checking CVE-2021-27065  IOC"
 Select-String -Path "$env:PROGRAMFILES\Microsoft\Exchange Server\V15\Logging\ECP\Server\*.log" -Pattern 'Set-.+VirtualDirectory'
 #CVE-2021-26855
 Write-Host "Checking CVE-2021-26855 IOC"
-Import-Csv -Path (Get-ChildItem -Recurse -Path "$env:PROGRAMFILES\Microsoft\Exchange Server\V15\Logging\HttpProxy" -Filter '*.log').FullName | Where-Object {  $_.AuthenticatedUser -eq '' -and $_.AnchorMailbox -like 'ServerInfo~*/*' } | select DateTime, AnchorMailbox
+Import-Csv -Path (Get-ChildItem -Recurse -Path "$env:PROGRAMFILES\Microsoft\Exchange Server\V15\Logging\HttpProxy" -Filter '*.log' -ErrorAction SilentlyContinue).FullName | Where-Object {  $_.AuthenticatedUser -eq '' -and $_.AnchorMailbox -like 'ServerInfo~*/*' } | select DateTime, AnchorMailbox
